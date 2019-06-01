@@ -40,10 +40,10 @@ def assets(path):
     return send_from_directory(f"{STATIC_ROOT}/assets", path)
 
 
-def start():
+def runner():
     """
     Start http server
     :return:
     """
-    app.run(host="0.0.0.0", port="3000")
+    # app.run(host="0.0.0.0", port="3000")
     return app
