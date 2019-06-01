@@ -1,9 +1,9 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='dino_ia',
     version='0.1',
-    packages=['dino_ia'],
+    # packages=find_packages(),
     url='',
     license='',
     author='André Claudino',
