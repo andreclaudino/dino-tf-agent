@@ -2,8 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 // extract from chromium source code by @liuwayong
+
 (function () {
     'use strict';
+    var socket = io();
+
     /**
      * T-Rex runner.
      * @param {string} outerContainerId Outer containing element id.
@@ -480,11 +483,10 @@
                 this.containerEl.style.webkitAnimation = 'intro .4s ease-out 1 both';
                 this.containerEl.style.width = this.dimensions.WIDTH + 'px';
 
-                // if (this.touchController) {
-                //     this.outerContainerEl.appendChild(this.touchController);
-                // }
                 this.playing = true;
                 this.activated = true;
+
+                socket.emit('chat message', "START");
             } else if (this.crashed) {
                 this.restart();
             }
@@ -567,7 +569,7 @@
                 
                 let reward = collision ? -1000 : (this.currentSpeed * deltaTime)
                 let current_obstacle = this.horizon.obstacles[0]
-
+                
                 let message = {
                     step_type: collision ? "LAST" : "MID",
                     reward: reward,
@@ -575,6 +577,7 @@
                     observation: {
                         speed: this.currentSpeed,
                         rex: {
+                            state: this.tRex.status,
                             x: this.tRex.xPos,
                             y: this.tRex.yPos,
                             width: this.tRex.config.WIDTH,
@@ -958,15 +961,12 @@
     * and include image of canvas for the final video
     */
     Runner.reportState = function(message){
-        console.log(message)
         var canvas = document.getElementsByClassName('runner-canvas')[0];
         var dataUrl = canvas.toDataURL("image/png");
         message["image"] = dataUrl
 
-        console.log(JSON.stringify(message))
+        socket.emit("TimeStep", message)
     }
-
-
 
     /**
      * Get random number.
