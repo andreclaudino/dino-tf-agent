@@ -17,6 +17,7 @@ class PersistenseActor(Actor):
 
     def write_file(self, message):
         self.file.write(f"{json.dumps(message)}\n")
+        print(message)
 
     def receiveMessage(self, data, _):
         """
