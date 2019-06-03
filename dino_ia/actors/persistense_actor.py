@@ -13,7 +13,7 @@ class PersistenseActor(Actor):
         self.file = None
 
     def create_file(self, filename):
-        self.file = open(f"essays/{filename}.json", "a+")
+        self.file = open(f"essays/{filename}", "a+")
 
     def write_file(self, message):
         self.file.write(f"{json.dumps(message)}\n")
