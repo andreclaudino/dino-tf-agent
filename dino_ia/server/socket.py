@@ -1,25 +1,35 @@
+from thespian.actors import ActorSystem
 import socketio
 
-sio = socketio.Server()
+from  dino_ia.actors import PersistenseActor
+
+_sio = socketio.Server()
+_persister = ActorSystem().createActor(PersistenseActor)
+_system = ActorSystem()
 
 
-@sio.on('connect')
+def tell(action, message):
+    _system.tell(_persister, message)
+
+
+@_sio.on('connect')
 def connect(sid, environ):
-    print('cliente conectado ', sid)
-    sio.send("UP")
+    tell('CREATE', sid)
+    _sio.send("START")
 
 
-@sio.on('TimeStep')
-def my_message(sid, data):
-    print('TimeStep ', data)
+@_sio.on('TimeStep')
+def my_message(sid, message):
+    tell('WRITE', sid, message)
 
 
-@sio.on('disconnect')
+@_sio.on('disconnect')
 def disconnect(sid):
+    tell('CLOSE', ())
     print('disconnect ', sid)
 
 
 def runner():
-    return sio
+    return _sio
 
 
