@@ -11,6 +11,7 @@ setup(
     install_requires=[
         "flask",
         "python-socketio",
-        "eventlet"
+        "eventlet",
+        "thespian"
     ]
 )
