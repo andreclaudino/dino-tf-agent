@@ -19,7 +19,7 @@ class PersistenseActor(Actor):
         self.file.write(f"{json.dumps(message)}\n")
         print(message)
 
-    def receiveMessage(self, data, _):
+    def receiveMessage(self, data, sender):
         """
         Persist a message on filesystem
         :param data: A tuple containing (action, socket_id, message)
