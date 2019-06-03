@@ -1,4 +1,5 @@
 import json
+import os
 from thespian.actors import *
 
 
@@ -6,6 +7,9 @@ class PersistenseActor(Actor):
 
     def __init__(self):
         super(PersistenseActor, self).__init__()
+
+        if not os.path.exists("essays"):
+            os.makedirs("essays")
         self.file = None
 
     def create_file(self, filename):
