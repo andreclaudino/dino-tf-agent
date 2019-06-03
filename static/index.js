@@ -5,8 +5,7 @@
 
 (function () {
     'use strict';
-    var socket = io();
-
+    
     /**
      * T-Rex runner.
      * @param {string} outerContainerId Outer containing element id.
@@ -20,7 +19,7 @@
             return Runner.instance_;
         }
         Runner.instance_ = this;
-
+        
         this.outerContainerEl = document.querySelector(outerContainerId);
         this.containerEl = null;
         this.snackbarEl = null;
@@ -34,6 +33,7 @@
         this.canvasCtx = null;
 
         this.tRex = null;
+        this.collision = false;
 
         this.distanceMeter = null;
         this.distanceRan = 0;
@@ -54,6 +54,8 @@
         this.inverted = false;
         this.invertTimer = 0;
         this.resizeTimerId_ = null;
+
+        this.socket = io();
 
         this.playCount = 0;
 
@@ -232,6 +234,40 @@
 
 
     Runner.prototype = {
+        
+        setup: function(){
+            this.socket = io()
+            
+            this.socket.on('connection', function(socket){
+                console.log('Server connected');
+            })
+        
+            this.socket.on('disconnect', function(socket){
+                console.log('Server disconnected');
+            })
+        
+            this.socket.on('START', function(socket){
+                console.log('Starting');
+                doAction('START')
+                Runner.instance_.reportState('START')
+            })
+        
+            this.socket.on('JUMP', function(socket){
+                doAction('JUMP')
+                Runner.instance_.reportState('JUMP')
+            })
+        
+            this.socket.on('DUCK', function(socket){
+                doAction('DUCK')
+                Runner.instance_.reportState('DUCK')
+            })
+        
+            this.socket.on('RUN', function(socket){
+                doAction('RUN')
+                Runner.instance_.reportState('RUN')
+            });
+        },
+
         /**
          * Whether the easter egg has been disabled. CrOS enterprise enrolled devices.
          * @return {boolean}
@@ -486,7 +522,7 @@
                 this.playing = true;
                 this.activated = true;
 
-                socket.emit('chat message', "START");
+                this.socket.emit('chat message', "START");
             } else if (this.crashed) {
                 this.restart();
             }
@@ -557,6 +593,8 @@
                 var collision = hasObstacles &&
                     checkForCollision(this.horizon.obstacles[0], this.tRex, this.canvasCtx);
 
+                this.collision = collision
+
                 if (!collision) {
                     this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
 
@@ -566,36 +604,6 @@
                 } else {
                     this.gameOver();
                 }
-                
-                let reward = collision ? -1000 : (this.currentSpeed * deltaTime)
-                let current_obstacle = this.horizon.obstacles[0]
-                
-                let message = {
-                    step_type: collision ? "LAST" : "MID",
-                    reward: reward,
-                    discount: this.msPerFrame,
-                    observation: {
-                        speed: this.currentSpeed,
-                        rex: {
-                            state: this.tRex.status,
-                            x: this.tRex.xPos,
-                            y: this.tRex.yPos,
-                            width: this.tRex.config.WIDTH,
-                            height: this.tRex.config.HEIGHT
-                        }
-                    }
-                }
-                
-                if(current_obstacle){
-                    message.observation.obstacle = {
-                        x: current_obstacle.xPos,
-                        y: current_obstacle.yPos,
-                        width: current_obstacle.typeConfig.width * current_obstacle.size,
-                        height: current_obstacle.typeConfig.height
-                    }
-                }
-    
-                Runner.reportState(message)
 
                 var playAchievementSound = this.distanceMeter.update(deltaTime,
                     Math.ceil(this.distanceRan));
@@ -632,6 +640,56 @@
                 this.tRex.update(deltaTime);
                 this.scheduleNextUpdate();
             }
+        },
+
+        /* Reports the state to the agent, should return a
+        * TimeStep(step_type, reward, discount, observation)
+        * and include image of canvas for the final video
+        */
+        reportState: function(action){
+            var message = this.state();
+            message['action'] = action;
+
+            var canvas = document.getElementsByClassName('runner-canvas')[0];
+            var dataUrl = canvas.toDataURL("image/png");
+            message["image"] = dataUrl
+
+            this.socket.emit("TimeStep", message)
+        },
+
+        /**
+        * State to be reported for backend
+        */
+        state: function(){
+            let reward = this.collision ? -1000 : (this.currentSpeed * this.deltaTime)
+            let current_obstacle = this.horizon.obstacles[0]
+
+            let message = {
+                step_type: this.collision ? "LAST" : "MID",
+                reward: this.reward,
+                discount: this.msPerFrame,
+                observation: {
+                    speed: this.currentSpeed,
+                    rex: {
+                        state: this.tRex.status,
+                        x: this.tRex.xPos,
+                        y: this.tRex.yPos,
+                        width: this.tRex.config.WIDTH,
+                        height: this.tRex.config.HEIGHT
+                    }
+                }
+            }
+
+            if(current_obstacle){
+                message.observation.obstacle = {
+                    x: current_obstacle.xPos,
+                    y: current_obstacle.yPos,
+                    width: current_obstacle.typeConfig.width * current_obstacle.size,
+                    height: current_obstacle.typeConfig.height
+                }
+            }
+
+            return message
         },
 
         /**
@@ -955,18 +1013,6 @@
         return false;
     };
     
-    
-    /* Reports the state to the agent, should return a
-    * TimeStep(step_type, reward, discount, observation)
-    * and include image of canvas for the final video
-    */
-    Runner.reportState = function(message){
-        var canvas = document.getElementsByClassName('runner-canvas')[0];
-        var dataUrl = canvas.toDataURL("image/png");
-        message["image"] = dataUrl
-
-        socket.emit("TimeStep", message)
-    }
 
     /**
      * Get random number.
@@ -2753,7 +2799,34 @@
 
 
 function onDocumentLoad() {
-    new Runner('.interstitial-wrapper');
+    let runner = new Runner('.interstitial-wrapper');
+    runner.setup()
+}
+
+function doAction(action) {
+     var eventObj = document.createEventObject ?
+         document.createEventObject() : document.createEvent("Events");
+
+     if(eventObj.initEvent){
+         eventObj.initEvent("keydown", true, true);
+     }
+
+    switch(action){
+        case 'JUMP':
+            eventObj.keyCode = 38
+            eventObj.which = 38
+            break
+        case 'DUCK':
+            eventObj.keyCode = 40
+            eventObj.which = 40
+            break
+        case 'START':
+            eventObj.keyCode = 32
+            eventObj.which = 32
+            break
+    }
+
+    document.dispatchEvent(eventObj)
 }
 
 document.addEventListener('DOMContentLoaded', onDocumentLoad);
