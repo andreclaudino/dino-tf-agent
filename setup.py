@@ -12,6 +12,8 @@ setup(
         "flask",
         "python-socketio",
         "eventlet",
-        "thespian"
+        "thespian",
+        "tf-agents-nightly",
+        "tf-nightly"
     ]
 )
