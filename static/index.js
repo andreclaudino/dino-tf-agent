@@ -249,7 +249,7 @@
             this.socket.on('START', function(socket){
                 console.log('Starting');
                 doAction('START')
-                Runner.instance_.reportState('START')
+                // Runner.instance_.reportState('START')
             })
         
             this.socket.on('JUMP', function(socket){
@@ -522,7 +522,7 @@
                 this.playing = true;
                 this.activated = true;
 
-                this.socket.emit('chat message', "START");
+                this.socket.emit('START', "START");
             } else if (this.crashed) {
                 this.restart();
             }
@@ -654,7 +654,7 @@
             var dataUrl = canvas.toDataURL("image/png");
             message["image"] = dataUrl
 
-            this.socket.emit("TimeStep", message)
+            this.socket.emit("time_step", message)
         },
 
         /**
@@ -667,10 +667,10 @@
             let message = {
                 step_type: this.collision ? "LAST" : "MID",
                 reward: this.reward,
-                discount: this.msPerFrame,
+                discount: 1.0,
                 observation: {
                     speed: this.currentSpeed,
-                    rex: {
+                    dino: {
                         state: this.tRex.status,
                         x: this.tRex.xPos,
                         y: this.tRex.yPos,
@@ -687,7 +687,24 @@
                     width: current_obstacle.typeConfig.width * current_obstacle.size,
                     height: current_obstacle.typeConfig.height
                 }
+            } else {
+                message.observation.obstacle = {
+                    x: -10000,
+                    y: -10000,
+                    width: 0,
+                    height: 0
+                }
             }
+
+            message.observation.state = [
+                message.observation.speed,
+                message.observation.dino.x,
+                message.observation.dino.y,
+                message.observation.obstacle.x,
+                message.observation.obstacle.y,
+                message.observation.obstacle.width,
+                message.observation.obstacle.height
+            ]
 
             return message
         },
