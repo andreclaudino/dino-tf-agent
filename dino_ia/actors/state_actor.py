@@ -5,7 +5,6 @@ import eventlet
 from thespian.actors import *
 
 from dino_ia.server import http
-from dino_ia.server import socket
 
 _sio = socketio.Server()
 
@@ -13,11 +12,9 @@ _sio = socketio.Server()
 class StateActor(Actor, socketio.Namespace):
 
     def __init__(self):
-        super(StateActor, self).__init__()
+        super(Actor, self).__init__()
+        super(socketio.Namespace, self).__init__()
 
-        if not os.path.exists("essays"):
-            os.makedirs("essays")
-        self.file = None
         self.state = None
 
     # Actor part
@@ -36,10 +33,6 @@ class StateActor(Actor, socketio.Namespace):
         # Send command to game
         _sio.emit(action, {})
 
-    async def on_time_step(self, sid, data):
-        # Should adjust to get only state vector and useful data
-        self.state = data
-
     def get_state(self):
         # Wait for response from game
         while not self.state:
@@ -51,14 +44,13 @@ class StateActor(Actor, socketio.Namespace):
         return state
 
     # Server part
-
-    def start_service(self):
+    async def start_service(self):
         """
         Starts game server: API + Socket.IO server
         :return:
         """
         http_runner = http.runner()
-        socket_runner = socket.runner()
+        socket_runner = _sio
 
         app = socketio.WSGIApp(socket_runner, http_runner)
         eventlet.wsgi.server(eventlet.listen(('0.0.0.0', 3000)), app)
@@ -70,3 +62,10 @@ class StateActor(Actor, socketio.Namespace):
     def on_disconnect(self, sid):
         self.act("REFRESH")
         _sio.disconnect(sid)
+
+    async def on_time_step(self, sid, message):
+        # Should adjust to get only state vector and useful data
+        self.state = message['observation']['state']
+
+
+_sio.register_namespace(StateActor())

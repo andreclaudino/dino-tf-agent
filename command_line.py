@@ -1,10 +1,12 @@
-import dino_ia.server
 import numpy as np
-from time import sleep
+
+from dino_ia.environment.dino_enviroment import DinoEnv
 
 if __name__ == '__main__':
-    # environment = dino_ia.server.start()
-    environment = dino_ia.server.socket.enviroment
+
+    environment = DinoEnv()
+
+    environment.serve()
 
     time_step = environment.reset()
     print(time_step)
@@ -14,5 +16,3 @@ if __name__ == '__main__':
         time_step = environment.step(np.random.randint(-1, 1))
         print(time_step)
         cumulative_reward += time_step.reward
-
-    sleep(1000)
