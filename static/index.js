@@ -236,8 +236,6 @@
     Runner.prototype = {
         
         setup: function(){
-            this.socket = io()
-            
             this.socket.on('connection', function(socket){
                 console.log('Server connected');
             })
@@ -260,12 +258,8 @@
         
             this.socket.on('DUCK', function(socket){
                 doAction('DUCK')
-                Runner.DUCK._reportState('DUCK')
+                Runner.instance_.reportState('DUCK')
                 console.log('DUCK')
-            })
-
-            this.socket.on('REFRESH', function(socket){
-                location.reload()
             })
         
             this.socket.on('RUN', function(socket){
@@ -675,7 +669,7 @@
                 step_type: this.collision ? "LAST" : "MID",
                 reward: this.reward,
                 discount: 1.0,
-                observation: {
+                state: {
                     speed: this.currentSpeed,
                     dino: {
                         state: this.tRex.status,
@@ -688,14 +682,14 @@
             }
 
             if(current_obstacle){
-                message.observation.obstacle = {
+                message.state.obstacle = {
                     x: current_obstacle.xPos,
                     y: current_obstacle.yPos,
                     width: current_obstacle.typeConfig.width * current_obstacle.size,
                     height: current_obstacle.typeConfig.height
                 }
             } else {
-                message.observation.obstacle = {
+                message.state.obstacle = {
                     x: -10000,
                     y: -10000,
                     width: 0,
@@ -703,14 +697,14 @@
                 }
             }
 
-            message.observation.state = [
-                message.observation.speed,
-                message.observation.dino.x,
-                message.observation.dino.y,
-                message.observation.obstacle.x,
-                message.observation.obstacle.y,
-                message.observation.obstacle.width,
-                message.observation.obstacle.height
+            message.state.observation = [
+                message.state.speed,
+                message.state.dino.x,
+                message.state.dino.y,
+                message.state.obstacle.x,
+                message.state.obstacle.y,
+                message.state.obstacle.width,
+                message.state.obstacle.height
             ]
 
             return message

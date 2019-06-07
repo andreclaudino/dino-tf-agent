@@ -11,7 +11,6 @@ setup(
     install_requires=[
         "flask",
         "python-socketio",
-        "eventlet",
         "thespian",
         "tf-agents-nightly",
         "tf-nightly"
