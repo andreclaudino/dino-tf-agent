@@ -1,1 +1,0 @@
-from dino_ia.persist.persistense_actor import PersistenseActor
