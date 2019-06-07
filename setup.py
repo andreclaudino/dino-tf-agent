@@ -13,6 +13,7 @@ setup(
         "python-socketio",
         "thespian",
         "tf-agents-nightly",
-        "tf-nightly"
+        "tf-nightly",
+        "requests"
     ]
 )
