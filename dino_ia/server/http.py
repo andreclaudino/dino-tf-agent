@@ -1,9 +1,10 @@
 import os
+from time import sleep
 
 from flask import Flask
 from flask import send_from_directory
 
-from dino_ia.server.game_socket import gameSocket
+from dino_ia.server.game_socket import socket
 
 # if the environment variable with static files root path is set,
 # send from there, else, send from static folder in current dir by default
@@ -41,14 +42,11 @@ def assets(path):
     return send_from_directory(f"{STATIC_ROOT}/assets", path)
 
 
-@app.route("/state")
-def state():
-    gameSocket.emit("STATE")
-
-
-@app.route("/action/<action:string>")
-def state(action):
-    gameSocket.emit(action.upper())
+@app.route("/act/<action>")
+def act(action):
+    socket.emit(action.upper())
+    sleep(.1)
+    return "ok"
 
 
 def runner():

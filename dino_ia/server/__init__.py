@@ -1,3 +1,5 @@
+import eventlet
+import socketio
 
 from dino_ia.server import game_socket
 from dino_ia.server import http
