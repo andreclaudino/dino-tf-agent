@@ -5,12 +5,16 @@ from flask import Flask
 from flask import send_from_directory
 
 from dino_ia.server.game_socket import socket
+from dino_ia.server.game_socket import gameSocket
+
+import json
 
 # if the environment variable with static files root path is set,
 # send from there, else, send from static folder in current dir by default
 STATIC_ROOT = os.environ.get('DINO_STATIC_ROOT', f'{os.getcwd()}{os.sep}static')
 
 app = Flask(__name__)
+
 
 @app.route('/')
 def index():
@@ -45,8 +49,8 @@ def assets(path):
 @app.route("/act/<action>")
 def act(action):
     socket.emit(action.upper())
-    sleep(.1)
-    return "ok"
+    sleep(.05)
+    return json.dumps(gameSocket.get_observable())
 
 
 def runner():
