@@ -247,24 +247,31 @@
             })
         
             this.socket.on('START', function(socket){
-                console.log('Starting');
                 doAction('START')
-                // Runner.instance_.reportState('START')
+                Runner.instance_.reportState('START')
+                console.log('START');
             })
         
             this.socket.on('JUMP', function(socket){
                 doAction('JUMP')
                 Runner.instance_.reportState('JUMP')
+                console.log('JUMP')
             })
         
             this.socket.on('DUCK', function(socket){
                 doAction('DUCK')
-                Runner.instance_.reportState('DUCK')
+                Runner.DUCK._reportState('DUCK')
+                console.log('DUCK')
+            })
+
+            this.socket.on('REFRESH', function(socket){
+                location.reload()
             })
         
             this.socket.on('RUN', function(socket){
                 doAction('RUN')
                 Runner.instance_.reportState('RUN')
+                console.log('RUN')
             });
         },
 
@@ -2821,27 +2828,31 @@ function onDocumentLoad() {
 }
 
 function doAction(action) {
-     var eventObj = document.createEventObject ?
-         document.createEventObject() : document.createEvent("Events");
-
-     if(eventObj.initEvent){
-         eventObj.initEvent("keydown", true, true);
-     }
-
     switch(action){
         case 'JUMP':
-            eventObj.keyCode = 38
-            eventObj.which = 38
+            createKeyEvent("keydown", 38)
+            setTimeout(function() {createKeyEvent("keyup", 38);} , 400);
             break
         case 'DUCK':
-            eventObj.keyCode = 40
-            eventObj.which = 40
+            createKeyEvent("keydown", 40)
+            setTimeout(function() {createKeyEvent("keyup", 40);} , 400);
             break
         case 'START':
-            eventObj.keyCode = 32
-            eventObj.which = 32
+            createKeyEvent("keydown", 32)
+            setTimeout(function() {createKeyEvent("keyup", 32);} , 1000);
             break
     }
+}
+
+function createKeyEvent(flavour, keyCode){
+    var eventObj = document.createEventObject ? document.createEventObject() : document.createEvent("Events");
+    
+    if(eventObj.initEvent){
+        eventObj.initEvent(flavour, true, true);
+    }
+
+    eventObj.keyCode = keyCode
+    eventObj.which = keyCode
 
     document.dispatchEvent(eventObj)
 }
