@@ -1,1 +1,0 @@
-from dino_ia.environment.dino_enviroment import DinoEnv

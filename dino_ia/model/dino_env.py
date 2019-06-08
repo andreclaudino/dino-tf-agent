@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 from tf_agents.environments import py_environment
@@ -6,33 +7,65 @@ from tf_agents.specs import array_spec
 
 import requests as req
 
-ACTIONS = {-1: "DOWN", 0: "JUMP", 1: "DUCK"}
-REWARDS = {"DOWN": -1, "JUMP": -1, "DUCK": -1}
+BASE_ADDRESS = os.environ.get('BASE_ADDRESS', '0.0.0.0:3000')
 
 
 class DinoEnv(py_environment.PyEnvironment):
 
     def __init__(self):
         self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=-1, maximum=1, name='action')
-        self._observation_spec = array_spec.BoundedArraySpec(shape=(7,), dtype=np.int32, minimum=0, name='observation')
+        self._observation_spec = array_spec.BoundedArraySpec(shape=(7,), dtype=np.float32, name='observation')
         self._state = np.asarray([0, 0, 0, 0, 0, 0, 0], dtype=np.int32)
         self._episode_ended = False
 
-    def action_sped(self):
+    def action_spec(self):
         return self._action_spec
 
     def observation_spec(self):
         return self._observation_spec
 
     def _reset(self):
-        self._state = np.asarray([0, 0, 0, 0, 0, 0, 0], dtype=np.int32)
+        self._state = np.asarray([0, 0, 0, 0, 0, 0, 0], dtype=np.float32)
         self._episode_ended = False
+
+        self.send('START')
 
         return ts.restart(self._state)
 
     def _step(self, action):
         if self._episode_ended:
+
             return self.reset()
 
-        observable = req.get(f"http://0.0.0.0/act/{ACTIONS[action]}", timeout=10).json()
+        action_message, reward = self.act(action)
+        request_result = self.send(action_message)
+
+        if request_result['crashed']:
+            self._episode_ended = True
+
+            reward = -100
+            value = np.asarray(request_result['value'], dtype=np.float32)
+
+            return ts.termination(value, reward)
+
+        value = np.asarray(request_result['value'], dtype=np.float32)
+        return ts.transition(value, reward)
+
+    def act(self, action):
+        reward = 0
+        action_message = ''
+
+        if action == -1:
+            action_message = 'RUN'
+            reward = 1
+        elif action == 0:
+            action_message = 'JUMP'
+            reward = -3
+        elif action == 1:
+            action_message = 'DUCK'
+            reward = -3
+        return action_message, reward
+
+    def send(self, action_message, timeout=0.1):
+        return req.get(f"http://{BASE_ADDRESS}/act/{action_message.upper()}", timeout=timeout).json()
 
