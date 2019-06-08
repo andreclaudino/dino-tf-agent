@@ -22,7 +22,7 @@ time_step_spec = ts.time_step_spec(input_tensor_spec)
 action_spec = tensor_spec.BoundedTensorSpec((1,), tf.int32, minimum=-1, maximum=1)
 num_actions = action_spec.maximum - action_spec.minimum + 1
 
-env_name = 'CartPole-v0'  # @param
+num_iterations = 5000000000 # @param
 num_iterations = 50000  # @param
 collect_episodes_per_iteration = 4  # @param
 replay_buffer_capacity = 2000  # @param
