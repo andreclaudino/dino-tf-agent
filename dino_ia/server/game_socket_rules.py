@@ -1,6 +1,6 @@
-import numpy as np
-import socketio
 from multiprocessing import Queue
+
+import socketio
 
 
 class GameSocket(socketio.Namespace):
@@ -23,7 +23,7 @@ class GameSocket(socketio.Namespace):
 
     def on_time_step(self, sid, message):
         print(message)
-        state = message['state']['observation']
+        state = dict(crashed=message['crashed'], value=message['state']['observation'])
         self._queue.put(state)
         print(f"Action {message} returns {state}")
 
