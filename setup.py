@@ -11,9 +11,9 @@ setup(
     install_requires=[
         "flask",
         "python-socketio",
-        "thespian",
         "tf-agents-nightly",
-        "tf-nightly",
+        "tensorflow==2.0.0-beta0",
         "requests"
-    ]
+    ],
+    tests_require=['pytest']
 )
