@@ -662,17 +662,16 @@
         * State to be reported for backend
         */
         state: function(){
-            let reward = this.collision ? -1000 : (this.currentSpeed * this.deltaTime)
             let current_obstacle = this.horizon.obstacles[0]
 
             let message = {
                 step_type: this.collision ? "LAST" : "MID",
-                reward: this.reward,
+                crashed: this.collision,
                 discount: 1.0,
                 state: {
                     speed: this.currentSpeed,
                     dino: {
-                        state: this.tRex.status,
+                        status: this.tRex.status,
                         x: this.tRex.xPos,
                         y: this.tRex.yPos,
                         width: this.tRex.config.WIDTH,
@@ -706,6 +705,8 @@
                 message.state.obstacle.width,
                 message.state.obstacle.height
             ]
+            
+            console.log(message)
 
             return message
         },
@@ -2834,6 +2835,8 @@ function doAction(action) {
         case 'START':
             createKeyEvent("keydown", 32)
             setTimeout(function() {createKeyEvent("keyup", 32);} , 1000);
+            break
+        case 'RUN':
             break
     }
 }
