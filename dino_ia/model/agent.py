@@ -25,9 +25,9 @@ num_actions = action_spec.maximum - action_spec.minimum + 1
 num_iterations = 5000000000 # @param
 num_iterations = 50000  # @param
 collect_episodes_per_iteration = 4  # @param
-replay_buffer_capacity = 2000  # @param
+replay_buffer_capacity = 8000  # @param
 
-fc_layer_params = (50,)
+fc_layer_params = (100,)
 
 learning_rate = 1e-3  # @param
 log_interval = 5  # @param
