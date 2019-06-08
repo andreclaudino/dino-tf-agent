@@ -23,7 +23,6 @@ action_spec = tensor_spec.BoundedTensorSpec((1,), tf.int32, minimum=-1, maximum=
 num_actions = action_spec.maximum - action_spec.minimum + 1
 
 num_iterations = 5000000000 # @param
-num_iterations = 50000  # @param
 collect_episodes_per_iteration = 4  # @param
 replay_buffer_capacity = 8000  # @param
 
