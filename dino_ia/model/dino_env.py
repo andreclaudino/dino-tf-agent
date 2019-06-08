@@ -17,6 +17,7 @@ class DinoEnv(py_environment.PyEnvironment):
         self._observation_spec = array_spec.BoundedArraySpec(shape=(7,), dtype=np.float32, name='observation')
         self._state = np.asarray([0, 0, 0, 0, 0, 0, 0], dtype=np.int32)
         self._episode_ended = False
+        self.state_reward = 0
 
     def action_spec(self):
         return self._action_spec
@@ -43,12 +44,19 @@ class DinoEnv(py_environment.PyEnvironment):
         if request_result['crashed']:
             self._episode_ended = True
 
-            reward = -100
+            reward = -100000
+            self.state_reward += reward
             value = np.asarray(request_result['value'], dtype=np.float32)
+
+            print(f"Finished with {self.state_reward} scores")
 
             return ts.termination(value, reward)
 
         value = np.asarray(request_result['value'], dtype=np.float32)
+        self.state_reward += reward
+
+        print(f"Act with {self.state_reward} scores")
+
         return ts.transition(value, reward)
 
     def act(self, action):
@@ -57,15 +65,18 @@ class DinoEnv(py_environment.PyEnvironment):
 
         if action == -1:
             action_message = 'RUN'
-            reward = 1
+            reward = 10
         elif action == 0:
             action_message = 'JUMP'
-            reward = -3
+            reward = -5
         elif action == 1:
             action_message = 'DUCK'
-            reward = -3
+            reward = -5
         return action_message, reward
 
     def send(self, action_message, timeout=0.1):
-        return req.get(f"http://{BASE_ADDRESS}/act/{action_message.upper()}", timeout=timeout).json()
+        try:
+            return req.get(f"http://{BASE_ADDRESS}/act/{action_message.upper()}", timeout=timeout).json()
+        except:
+            return dict(value=[0, 0, 0, 0, 0, 0, 0], crashed=True)
 
