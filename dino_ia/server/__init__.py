@@ -9,5 +9,5 @@ socket_runner = game_socket.socket
 
 def start():
     http_runner.wsgi_app = socketio.WSGIApp(socket_runner, http_runner.wsgi_app)
-    http_runner.run(threaded=True, port=3000)
+    http_runner.run(threaded=True, port=3000, host="0.0.0.0")
 
