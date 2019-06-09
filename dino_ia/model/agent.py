@@ -15,12 +15,12 @@ from dino_ia.model.dino_env import DinoEnv
 tf.compat.v1.enable_resource_variables()
 
 num_iterations = 5000000000 # @param
-batch_size = 32  # @param
-initial_collect_steps = 100  # @param
-collect_steps_per_iteration = 1  # @param
-replay_buffer_capacity = 1000  # @param
+batch_size = 128  # @param
+initial_collect_steps = 1000  # @param
+collect_steps_per_iteration = 5  # @param
+replay_buffer_capacity = 10000  # @param
 
-fc_layer_params = (50,)
+fc_layer_params = (100,)
 
 learning_rate = 1e-3  # @param
 log_interval = 5  # @param
