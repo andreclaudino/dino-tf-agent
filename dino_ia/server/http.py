@@ -49,7 +49,7 @@ def assets(path):
 @app.route("/act/<action>")
 def act(action):
     socket.emit(action.upper())
-    sleep(.05)
+    sleep(.005)
     return json.dumps(gameSocket.get_observable())
 
 

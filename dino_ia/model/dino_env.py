@@ -44,7 +44,7 @@ class DinoEnv(py_environment.PyEnvironment):
         if request_result['crashed']:
             self._episode_ended = True
 
-            reward = -100000
+            reward = -50
             self.state_reward += reward
             value = np.asarray(request_result['value'], dtype=np.float32)
 
@@ -56,6 +56,7 @@ class DinoEnv(py_environment.PyEnvironment):
         self.state_reward += reward
 
         print(f"Act with {self.state_reward} scores")
+        print(value)
 
         return ts.transition(value, reward)
 
@@ -63,13 +64,13 @@ class DinoEnv(py_environment.PyEnvironment):
         reward = 0
         action_message = ''
 
-        if action == -1:
+        if action == 0:
             action_message = 'RUN'
-            reward = 10
+            reward = 0
         elif action == 0:
             action_message = 'JUMP'
             reward = -5
-        elif action == 1:
+        elif action == -1:
             action_message = 'DUCK'
             reward = -5
         return action_message, reward
@@ -77,6 +78,7 @@ class DinoEnv(py_environment.PyEnvironment):
     def send(self, action_message, timeout=0.1):
         try:
             return req.get(f"http://{BASE_ADDRESS}/act/{action_message.upper()}", timeout=timeout).json()
-        except:
+        except Exception as e:
+            print(e)
             return dict(value=[0, 0, 0, 0, 0, 0, 0], crashed=True)
 

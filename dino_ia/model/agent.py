@@ -8,6 +8,7 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.specs import tensor_spec
 from tf_agents.trajectories import trajectory
 from tf_agents.utils import common
+from time import sleep
 
 tf.compat.v1.enable_v2_behavior()
 
@@ -23,14 +24,14 @@ action_spec = tensor_spec.BoundedTensorSpec((1,), tf.int32, minimum=-1, maximum=
 num_actions = action_spec.maximum - action_spec.minimum + 1
 
 num_iterations = 5000000000 # @param
-collect_episodes_per_iteration = 4  # @param
+collect_episodes_per_iteration = 2  # @param
 replay_buffer_capacity = 8000  # @param
 
-fc_layer_params = (100,)
+fc_layer_params = (5,)
 
-learning_rate = 1e-3  # @param
+learning_rate = 1e-4  # @param
 log_interval = 5  # @param
-num_eval_episodes = 10  # @param
+num_eval_episodes = 50  # @param
 eval_interval = 50  # @param
 
 saver_path = "saved_model"
@@ -118,6 +119,8 @@ avg_return = compute_avg_return(eval_env, tf_agent.policy, num_eval_episodes)
 returns = [avg_return]
 
 for _ in range(num_iterations):
+
+    sleep(0.6)
 
     # Collect a few episodes using collect_policy and save to the replay buffer.
     collect_episode(
