@@ -13,7 +13,7 @@ BASE_ADDRESS = os.environ.get('BASE_ADDRESS', '0.0.0.0:3000')
 class DinoEnv(py_environment.PyEnvironment):
 
     def __init__(self):
-        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=-1, maximum=1, name='action')
+        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=2, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(shape=(7,), dtype=np.float32, name='observation')
         self._state = np.asarray([0, 0, 0, 0, 0, 0, 0], dtype=np.int32)
         self._episode_ended = False
@@ -48,7 +48,7 @@ class DinoEnv(py_environment.PyEnvironment):
             self.state_reward += reward
             value = np.asarray(request_result['value'], dtype=np.float32)
 
-            print(f"Finished with {self.state_reward} scores")
+            # print(f"Finished with {self.state_reward} scores")
 
             return ts.termination(value, reward)
 
@@ -66,11 +66,11 @@ class DinoEnv(py_environment.PyEnvironment):
 
         if action == 0:
             action_message = 'RUN'
-            reward = 0
-        elif action == 0:
+            reward = 1
+        elif action == 1:
             action_message = 'JUMP'
             reward = -5
-        elif action == -1:
+        elif action == 2:
             action_message = 'DUCK'
             reward = -5
         return action_message, reward
