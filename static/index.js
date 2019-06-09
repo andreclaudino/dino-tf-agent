@@ -2826,11 +2826,11 @@ function doAction(action) {
     switch(action){
         case 'JUMP':
             createKeyEvent("keydown", 38)
-            setTimeout(function() {createKeyEvent("keyup", 38);} , 400);
+            setTimeout(function() {createKeyEvent("keyup", 38);} , 200);
             break
         case 'DUCK':
             createKeyEvent("keydown", 40)
-            setTimeout(function() {createKeyEvent("keyup", 40);} , 400);
+            setTimeout(function() {createKeyEvent("keyup", 40);} , 200);
             break
         case 'START':
             createKeyEvent("keydown", 32)
