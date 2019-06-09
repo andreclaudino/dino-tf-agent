@@ -1,10 +1,9 @@
 from time import sleep
 
 import tensorflow as tf
-from tf_agents.networks import q_network
 from tf_agents.agents.dqn import dqn_agent
 from tf_agents.environments import tf_py_environment
-from tf_agents.networks import actor_distribution_network
+from tf_agents.networks import q_network
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.trajectories import trajectory
 from tf_agents.utils import common
@@ -16,12 +15,12 @@ from dino_ia.model.dino_env import DinoEnv
 tf.compat.v1.enable_resource_variables()
 
 num_iterations = 5000000000 # @param
-batch_size = 64  # @param
-initial_collect_steps = 1000  # @param
+batch_size = 32  # @param
+initial_collect_steps = 100  # @param
 collect_steps_per_iteration = 1  # @param
-replay_buffer_capacity = 2000  # @param
+replay_buffer_capacity = 1000  # @param
 
-fc_layer_params = (100,)
+fc_layer_params = (50,)
 
 learning_rate = 1e-3  # @param
 log_interval = 5  # @param
@@ -131,31 +130,6 @@ tf_agent.train_step_counter.assign(0)
 # Evaluate the agent's policy once before training.
 avg_return = compute_avg_return(eval_env, tf_agent.policy, num_eval_episodes)
 returns = [avg_return]
-
-# for _ in range(num_iterations):
-#
-#     sleep(0.6)
-#
-#     # Collect a few episodes using collect_policy and save to the replay buffer.
-#     collect_episode(
-#         train_env, tf_agent.collect_policy, collect_episodes_per_iteration)
-#
-#     # Use data from the buffer and update the agent's network.
-#     experience = replay_buffer.gather_all()
-#     train_loss = tf_agent.train(experience)
-#     replay_buffer.clear()
-#
-#     step = tf_agent.train_step_counter.numpy()
-#
-#     if step % log_interval == 0:
-#         tf.saved_model.save(tf_agent, saved_models_path)
-#         print(f"Model saved at step {step}")
-#         print('step = {0}: loss = {1}'.format(step, train_loss.loss))
-#
-#     if step % eval_interval == 0:
-#         avg_return = compute_avg_return(eval_env, tf_agent.policy, num_eval_episodes)
-#         print('step = {0}: Average Return = {1}'.format(step, avg_return))
-#         returns.append(avg_return)
 
 for _ in range(num_iterations):
     sleep(0.6)
