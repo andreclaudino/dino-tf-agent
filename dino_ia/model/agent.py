@@ -41,7 +41,10 @@ q_net = q_network.QNetwork(
     train_env.action_spec(),
     fc_layer_params=fc_layer_params)
 
-optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate)
+# Changed optimizer from
+# optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate)
+# trying suggestion at https://github.com/tensorflow/agents/issues/136#issuecomment-503267970
+optimizer = tf.optimizers.Adam(learning_rate=learning_rate)
 
 train_step_counter = tf.compat.v2.Variable(0)
 
