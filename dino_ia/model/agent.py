@@ -14,7 +14,7 @@ from dino_ia.model.dino_env import DinoEnv
 
 tf.compat.v1.enable_resource_variables()
 
-num_iterations = 5000000000 # @param
+num_iterations = 100 # @param
 batch_size = 128  # @param
 initial_collect_steps = 10  # @param
 collect_steps_per_iteration = 2  # @param
@@ -24,8 +24,8 @@ fc_layer_params = (100,)
 
 learning_rate = 1e-3  # @param
 log_interval = 5  # @param
-num_eval_episodes = 50  # @param
-eval_interval = 50  # @param
+num_eval_episodes = 2  # @param
+eval_interval = 5  # @param
 
 saver_path = "saved_model"
 saved_models_path = f"{saver_path}/models/"
