@@ -48,14 +48,17 @@ optimizer = tf.optimizers.Adam(learning_rate=learning_rate)
 
 train_step_counter = tf.compat.v2.Variable(0)
 
-tf_agent = dqn_agent.DqnAgent(
-    train_env.time_step_spec(),
-    train_env.action_spec(),
-    q_network=q_net,
-    optimizer=optimizer,
-    td_errors_loss_fn=dqn_agent.element_wise_squared_loss,
-    train_step_counter=train_step_counter)
-tf_agent.initialize()
+if tf.saved_model.contains_saved_model(saved_models_path):
+    tf_agent = tf.saved_model.load(saved_models_path)
+else:
+    tf_agent = dqn_agent.DqnAgent(
+        train_env.time_step_spec(),
+        train_env.action_spec(),
+        q_network=q_net,
+        optimizer=optimizer,
+        td_errors_loss_fn=dqn_agent.element_wise_squared_loss,
+        train_step_counter=train_step_counter)
+    tf_agent.initialize()
 
 eval_policy = tf_agent.policy
 collect_policy = tf_agent.collect_policy
@@ -148,6 +151,7 @@ for _ in range(num_iterations):
 
     if step % log_interval == 0:
         print('step = {0}: loss = {1}'.format(step, train_loss.loss))
+        tf.saved_model.save(tf_agent, saved_models_path)
 
     if step % eval_interval == 0:
         avg_return = compute_avg_return(eval_env, tf_agent.policy, num_eval_episodes)
