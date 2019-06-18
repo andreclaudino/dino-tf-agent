@@ -133,3 +133,5 @@ static/node_modules/
 essays/
 
 \.vscode/
+
+XDG_CACHE_HOME/
