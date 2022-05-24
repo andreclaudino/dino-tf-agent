@@ -12,7 +12,7 @@ setup(
         "flask",
         "python-socketio",
         "tf-agents-nightly",
-        "tensorflow==2.0.0-beta0",
+        "tensorflow==2.6.4",
         "requests"
     ],
     tests_require=['pytest']
